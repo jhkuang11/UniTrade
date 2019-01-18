@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+
+    .list-group{
+            flex-direction: row;
+        }
+
+        #list-tab .active{
+            color: transparent;
+            background-color: transparent;
+            border-color: lightgrey;
+        }
+
+        #myCarousel img {
+            width: auto;
+            height: 360px;
+            max-height: 360px;
+        }
+
+    </style>
+
+<div class="container">
+
+    <h3 style="overflow-wrap: break-word;">{{ item.title }}</h3>
+    <h5>Post created on {{ item.create_time }}</h5>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-sm-5">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Image:</div>
+                <div class="card-body">
+                    <img src="{{ item.image.url }}" class="img-fluid mx-auto d-block" alt="Responsive image">
+                </div>
+            </div>
+        </div>
+        <!-- end of left half -->
+
+        <!-- Right Half -->
+        <div class="col-sm-7">
+
+            <div class="container row mb-3">
+                <div class="border bg-light rounded-left py-2 px-3 w-25">Price: </div>
+                <div class="border bg-light rounded-right py-2 px-3">
+                    <span>
+                        ${{ item.price }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="container row mb-3">
+                <div class="border bg-light rounded-left py-2 px-3 w-25">Description: </div>
+                <div class="col border bg-light rounded-right py-2 px-3">
+                    <span style="overflow-wrap: break-word;">
+                        {{ item.description }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="container row mb-3">
+                <div class="border bg-light rounded-left py-2 px-3 w-25">Seller: </div>
+                <div class="col border bg-light rounded-right py-2 px-3">
+                    <span style="overflow-wrap: break-word;">
+                        {{ item.seller }}
+                    </span>
+                </div>
+            </div>
+            
+            {% if request.user != item.seller %}
+
+                <div class="card bg-light mb-3">
+                    <div class="card-header">Contact Seller: </div>
+                    <div class="card-body">
+                        <div id="alert-div" style="display:none;">
+                            <p class="alert alert-success" id="sent-success-message"></p>
+                        </div>
+                        <form method="POST" class="post-form">
+                            {% csrf_token %}
+                            {% if messages %}
+                            <span class="messages">
+                                {% for message in messages%}
+                                    <strong> {{ message }} </strong>
+                                {% endfor %}
+                            </span>
+                            {% endif %}
+                            {{ form.as_p }}
+                            <button onclick="dataSave()" type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
+
+                <script>
+                    function dataSave() {
+                        if (typeof(Storage) !== "undefined") {
+                            var input = document.getElementById("id_msg");
+                            sessionStorage.setItem("message", input.value);
+                        } else {
+                            document.getElementById("id_msg").value = "Not support web storage";
+                        }
+                    }
+                    if (sessionStorage.getItem('message') !== null){
+                        document.getElementById("id_msg").value = sessionStorage.getItem('message');
+                        sessionStorage.removeItem('message');
+                        sessionStorage.clear();
+                    } else{
+                        document.getElementById("id_msg").value = "";
+                    }
+                </script>
+
+            {% else %}
+
+                <!-- Display messages about the item if post belongs to the User -->
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        Messages
+                        <span style="float:right;"><a href="{% url 'message:home' %}">Go to Messages Dashboard>></a></span>
+                    </div>
+                    <div class="card-body table-responsive">
+                        {% if messages_received %}
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Sender / Receiver</th>
+                                        <th scope="col">Message</th>
+                                        <th scope="col">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for message in messages_received %}
+                                        <tr>
+                                            <td>
+                                                {% if message.sender == item.seller %}
+                                                    To: {{ message.receiver }}
+                                                {% else %}
+                                                    From: {{ message.sender }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="col-content" data-toggle="tooltip" data-placement="top" title="{{ message.msg }}">
+                                                    {{ message.msg }}
+                                                </div>
+                                            </td>
+                                            <td>{{ message.timestamp|date:'Y-m-d H:i' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            No messages for this item.
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+    <!-- end of right half -->
+
+<hr>
+</div>
+
+<script>
+    document.getElementById('id_receiver').value = {{ item.seller.id }}
+    document.getElementById('id_receiver').style.display = "none";
+    document.getElementById('id_item').value = {{ item.id }}
+    document.getElementById('id_item').style.display = "none";
+    document.querySelectorAll(".messages")[0].style.backgroundColor = "green";
+
+    function myFunction() {
+        document.getElementById("message-field").style.display = "none";
+        document.getElementById("sent-success-message").innerHTML = "Message Sent Successfully!";
+        document.getElementById("alert-div").style.display = ""
+    }
+</script>
+
+{% endblock %}

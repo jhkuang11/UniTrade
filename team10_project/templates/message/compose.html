@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <p><h3>Compose New Message</h3></p>
+  <form method="POST" class="post-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+{% endblock %}

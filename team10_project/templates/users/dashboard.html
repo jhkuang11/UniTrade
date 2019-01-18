@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<style>
+
+ <!--style for rounded grey box where dashboard information is contained-->
+#rcorners1 {
+    border-radius: 25px;
+    background: #F1F2FA;
+    padding: 20px;
+    width: 1000px;
+    height: 800px;
+}
+
+.nav a{
+    color:#212121;
+}
+
+.nav>li>a:focus {
+  background-color: #D3D1D1;
+}
+
+</style>
+<p>
+
+
+<div class=container>
+    <br>
+
+    <div id="rcorners1">
+
+        <h3> Hello {{request.user.username|title}}</h3>
+        <br>
+        <!-- Dashboard tabs -->
+        <ul class="nav nav-tabs nav-fill">
+
+            <!-- Link to approved/listed items go here -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:approved_items' %}">Approved Items</a>
+            </li>
+
+            <!-- Link to items awaiting approval go here -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:pending_items' %}">Pending Items</a>
+            </li>
+
+            <!-- Link to Messages go here -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'message:home' %}">Messages</a>
+            </li>
+        </ul>
+
+        <!-- Contents of the dashboard go here when template is extended -->
+        <div class="dashboard-items">
+            <br>
+            {% block item %}
+
+            {% endblock %}
+        </div>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}

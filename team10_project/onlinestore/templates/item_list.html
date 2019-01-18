@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% block index %}
+{% endblock %}
+
+{% load staticfiles %}
+{% load thumbnail %}
+    <div class = "row">
+        <!--Sort-->
+        <div class = "col">
+            <div class = "float-left">
+                {% if num_items > 1 %}
+                <font size="3">{{ num_items }} results</font>
+                {% elif num_items == 1 %}
+                <font size="3">1 result</font>
+                {% endif %}
+            </div>
+        </div>
+        <div class ="col">
+            {% if num_items > 0 %}
+                <form id ="sortform">
+                    <div class ="row float-right" style="padding: 0px 25px;">
+                        <div class="col-md-4" style="padding: 3px 5px 0px 20px;">
+                            <font size="3">Sort by</font>
+                        </div>
+                        <div class="col-md-6" style="padding: 0px 0px;">
+                            <select name = "sort_value" class="custom-select custom-select-sm">
+                                {% if picked_sort == "price"%}
+                                    <option value="price">Lowest Price</option>
+                                    <option value = "-create_time">Most Recent</option>
+                                {% else %}
+                                    <option value = "-create_time">Most Recent</option>
+                                    <option value = "price">Lowest Price</option>
+                                {% endif %}
+                            </select>
+                            {% if search_keyword != None %}
+                                <input type = "hidden" name="q" value ="{{search_keyword}}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2" style="padding: 0px 5px;">
+                            <button type="submit" class="btn btn-secondary btn-sm">Sort</button>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <br>
+
+    <div>
+        {% for item in items %}
+        {% if forloop.first %}<div class="row text-center">{% endif %}
+            {% if search_keyword|length < 40 and has_special_characters == None%}
+                <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card">
+                    <a href = "{% url 'onlinestore:item_detail' item.id %}" target="_blank">
+                        {% thumbnail item.image "250x250" as im %}
+                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="margin:{{ im|margin:"275x275" }}">
+                        {% empty %}
+                        <img src="{{ item.image.url }}" width="200" height="200" alt="{{ item.title }}">
+                        {% endthumbnail %}
+                    </a>
+                    <div class="card-body">
+                        <h4 class="card-title" data-toggle="tooltip" data-placement="top" title="{{ item.title }}">
+                            <a href="{% url 'onlinestore:item_detail' item.id %}" target="_blank">{{ item.title }}</a>
+                        </h4>
+                        <h4>${{ item.price }}</h4>
+                        <button type="button" class="btn btn-success btn-sm"><a href = "{% url 'onlinestore:item_detail' item.id %}" target="_blank" style="color: white">Buy</a></button>
+                    </div>
+                </div>
+            </div>
+            {% elif search_keyword|length >= 40 %}
+                <p>Please limit your input to 40 characters</p>
+            {% elif has_special_characters != None %}
+                <p>Please include only alphabetical or numerical characters in the search input</p>
+            {% endif%}
+        {% if forloop.counter|divisibleby:4 %}</div>
+          <div class="row text-center">
+              {% endif %}
+         {% if forloop.last %}
+          </div>
+        {% endif%}
+
+
+       {% empty %}
+        {% if search_keyword|length < 40 and has_special_characters == None%}
+            {% if search_keyword != None%}
+            <p>Sorry, no item related to "{{ search_keyword }}".</p>
+
+                {% if suggested_items_search == 1%}
+                    <p>Here are a few similar items we found in a different category:</p>
+                {% else %}
+                    <p>Here are a few recommended items: </p>
+                {% endif %}
+
+                <!--Adds recommended items-->
+                {% for item in suggested_items %}
+                    <!--Added same item loop for recommended items-->
+                    {% if forloop.first %}<div class="row text-center">{% endif %}
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card">
+                                <a href = "{% url 'onlinestore:item_detail' item.id %}">
+                                    {% thumbnail item.image "250x250" as im %}
+                                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="margin:{{ im|margin:"275x275" }}">
+                                    {% empty %}
+                                        <img src="{{ item.image.url }}" width="200" height="200" alt="{{ item.title }}">
+                                    {% endthumbnail %}
+                                </a>
+                                <div class="card-body">
+                                    <h4 class="card-title" data-toggle="tooltip" data-placement="top" title="{{ item.title }}">
+                                        <a href="{% url 'onlinestore:item_detail' item.id %}">{{ item.title }}</a>
+                                    </h4>
+                                    <h4>${{ item.price }}</h4>
+                                    <button type="button" class="btn btn-success btn-sm"><a href = "{% url 'onlinestore:item_detail' item.id %}" target="_blank" style="color: white">Buy</a></button>
+                                </div>
+                             </div>
+                        </div>
+                    {% if forloop.counter|divisibleby:4 %}</div>
+                    <div class="row text-center">{% endif %}
+                    {% if forloop.last %}
+                     </div>{% endif %}
+                {% endfor %}
+            {% elif picked_category != None%}
+            <p>Sorry, no item in <b>{{ picked_category }}</b>.</p>
+            <p>Here are a few recommended items: </p>
+                <!--Adds recommended items-->
+                {% for item in suggested_items %}
+                    <!--Added same item loop for recommended items-->
+                    {% if forloop.first %}<div class="row text-center">{% endif %}
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card">
+                                <a href = "{% url 'onlinestore:item_detail' item.id %}">
+                                    {% thumbnail item.image "250x250" as im %}
+                                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="margin:{{ im|margin:"275x275" }}">
+                                    {% empty %}
+                                        <img src="{{ item.image.url }}" width="200" height="200" alt="{{ item.title }}">
+                                    {% endthumbnail %}
+                                </a>
+                                <div class="card-body">
+                                    <h4 class="card-title" data-toggle="tooltip" data-placement="top" title="{{ item.title }}">
+                                        <a href="{% url 'onlinestore:item_detail' item.id %}">{{ item.title }}</a>
+                                    </h4>
+                                    <h4>${{ item.price }}</h4>
+                                    <button type="button" class="btn btn-success btn-sm"><a href = "{% url 'onlinestore:item_detail' item.id %}" target="_blank" style="color: white">Buy</a></button>
+                                </div>
+                             </div>
+                        </div>
+                    {% if forloop.counter|divisibleby:4 %}</div>
+                    <div class="row text-center">{% endif %}
+                    {% if forloop.last %}
+                     </div>{% endif %}
+                {% endfor %}
+            {% endif%}
+        {% elif search_keyword|length > 40%}
+        <p>Please limit input to 40 characters.</p>
+        {%elif has_special_characters != None%}
+        <p>Please don't include special characters.</p>
+
+        {% endif %}
+
+        {% endfor %}
+    </div>
+{% endblock %}

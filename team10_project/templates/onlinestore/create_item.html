@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="offset-md-2 col-md-8">
+            <h2>Post Item to Sell</h2>
+        </div>
+    </div>
+    <br>
+
+    <div class="row">
+        <div class="offset-md-2 col-md-8">
+            <!-- Temperary: form "action", set it direct to home page after click submit -->
+            <form action="{% url 'onlinestore:create_item' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if messages %}
+                    <ul class="messages">
+                    {% for message in messages %}
+                        <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if form.errors %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">
+                            <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">
+                        <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="mb-3">
+                    <label for="itemName"><strong>Title<font color="red">*</font>:</strong></label>
+                    <input type="text" class="form-control" id="itemName" name = "title" placeholder="" value="" required>
+                    <div class="invalid-feedback">
+                        Valid name of item is required.
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="itemName"><strong>Price<font color="red">*</font>:</strong></label>
+                        <div class="input-group">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input id="itemPrice" type="text" name="price" class="form-control text-right rounded-right" aria-label="Amount (to the nearest dollar)"
+                                required placeholder="0.00">
+
+                            <div class="invalid-feedback">
+                                Valid price number is required.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="itemDescription"><strong>Description:</strong></label>
+                    <textarea class="form-control" id="itemDescription" name="description" placeholder="Something about this item..." rows="3"></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="category"><strong>Category<font color="red">*</font>:</strong></label>
+                        <select class="custom-select d-block w-100" name="category" id="category" required>
+                            <option value="">Choose...</option>
+
+                            {% for category in categories %}
+                            <option value="{{category.id}}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <div class="invalid-feedback">
+                            Please select a valid category.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="image_upload"><strong>Image<font color="red">*</font>: </strong></label>
+                    <input type="file" class="form-control-file" id="image_upload" name="image" aria-describedby="fileHelp" required>
+                    <small id="fileHelp" class="form-text text-muted">Note: Maximum image upload size is 3 MB.</small>
+                    <div class="invalid-feedback">
+                        Please select a valid image file.
+                    </div>
+                </div>
+
+                <hr>
+                <p class="mb-5"><strong>Note:</strong> it may take up to 24 hours for administrator to approve the item.</p>
+
+                <!-- Click Cancel button will go back last page -->
+                <button onClick="javascript:history.go(-1)" class="btn btn-secondary btn-lg mb-4" type="cancel">Cancel</button>
+
+                <button id="submitButton" class="float-right btn btn-primary btn-lg mb-4" type="submit">Submit</button>
+
+            </form>
+
+        </div>
+    </div>
+
+
+    <script>
+        // for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+
+
+
+    {% endblock %}

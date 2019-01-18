@@ -1,0 +1,11 @@
+.mycontent{
+  border-style: none;
+  margin: 25px 25px 25px 25px;
+}
+
+.card-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+

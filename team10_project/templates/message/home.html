@@ -1,0 +1,105 @@
+{% extends "users/dashboard.html" %}
+
+{% block item %}
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'Inbox')">Inbox</button>
+  <button class="tablinks" onclick="openTab(event, 'Outbox')">Outbox</button>
+  <button class="tablinks" onclick="openTab(event, 'Compose')">Compose</button>
+</div>
+
+<div id="Inbox" class="tabcontent table-responsive">
+  <p><h3>Messages Received</h3></p>
+  {% if received_msg %}
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Item</th>
+          <th scope="col">Message</th>
+          <th scope="col">Sender</th>
+          <th scope="col">Date</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for message in received_msg %}
+        <tr>
+
+          <td>
+            <div>
+              <a href="{% url 'onlinestore:item_detail' message.item.id %}" style="color:black;" target="_blank">
+                {{ message.item }}
+              </a>
+            </div>
+          </td>
+
+          <td>
+            <div class="col-content" data-toggle="tooltip" data-placement="top" title="{{ message.msg }}">
+              {{ message.msg }}
+            </div>
+          </td>
+
+          <td>{{ message.sender }}</td>
+          <td>{{ message.timestamp|date:'Y-m-d H:i' }}</td>
+          <td><a href="#reply" onclick="openTab(event, 'Compose', '{{ message.item.id }}', '{{ message.sender.id }}')">Reply</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+  <p>No received messages.</p>
+  {% endif %}
+</div>
+
+<div id="Outbox" class="tabcontent table-responsive">
+  <p><h3>Messages Sent</h3></p>
+  {% if sent_msg %}
+  <table class="table table-hover">
+    <thead>
+        <tr>
+          <th scope="col">Item</th>
+          <th scope="col">Message</th>
+          <th scope="col">Receiver</th>
+          <th scope="col">Date</th>
+          <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for message in sent_msg %}
+      <tr>
+
+          <td>
+            <div>
+              <a href="{% url 'onlinestore:item_detail' message.item.id %}" style="color:black;" target="_blank">
+                {{ message.item }}
+              </a>
+            </div>
+          </td>
+
+          <td>
+            <div class="col-content" data-toggle="tooltip" data-placement="top" title="{{ message.msg }}">
+              {{ message.msg }}
+            </div>
+          </td>
+
+          <td>{{ message.receiver }}</td>
+          <td>{{ message.timestamp|date:'Y-m-d H:i' }}</td>
+        <td><a href="#reply" onclick="openTab(event, 'Compose', '{{ message.item.id }}', '{{ message.receiver.id }}')">Reply</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No sent messages.</p>
+  {% endif %}
+</div>
+
+<div id="Compose" class="tabcontent">
+  <p><h3>Compose New Message</h3></p>
+  <form method="POST" class="post-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+</div>
+
+{% endblock %}
